@@ -7,6 +7,7 @@ import { AuthContext } from '../../auth/context/AuthContext';
 const TaskTable = () => {
   const { user } = useContext( AuthContext );
   const [tasks, setTasks] = useState([]);
+  const [hitorialTasks, setHitorialTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,7 +18,8 @@ const TaskTable = () => {
   const [selectedOption1, setSelectedOption1] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const [newTask, setNewTask] = useState({ title: '', description: '', user_id: user.id, });
-  //const [editTask, setEditTask] = useState({ title: '', description: '' });
+  const [booleamShowModal, setBooleamShowModal] = useState(true);
+  const [serchUser, setSerchUser] = useState('');
 
   useEffect(() => {
     fetchTasks();
@@ -29,6 +31,7 @@ const TaskTable = () => {
       setLoading(true);
       const data = await getTasks();
       setTasks(data);
+      setHitorialTasks(data)
     } catch (error) {
       setError('Failed to fetch tasks:' + error);
     } finally {
@@ -71,7 +74,7 @@ const TaskTable = () => {
   const handleCreateTask = async (e) => {
     e.preventDefault();
     
-    if (newTask.title !== '') {
+    if (!booleamShowModal) {
       try {
         await modifyteTask(newTask);
         setShowCreateModal(false);
@@ -94,6 +97,7 @@ const TaskTable = () => {
   };
 
   const editTaskFunction = (task) => {
+    setBooleamShowModal(false)
     setNewTask({
       title: task.title,
       description: task.description,
@@ -125,13 +129,43 @@ const TaskTable = () => {
     return <p>{error}</p>;
   }
 
+  const showCreateModalFunction = () => {
+    setBooleamShowModal(true)
+    setShowCreateModal(true)
+  }
+
+  const serchUserfuction = (e) => {
+    setSerchUser(e.target.value)
+    if (e.target.value === 'todos') {
+      setTasks(hitorialTasks)
+      return
+    }
+    const serchUser = [...hitorialTasks].filter(task => task.task.users[0].id == e.target.value)
+    setTasks(serchUser)
+  }
   return (
     <div className="container mt-4">
        <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Task List</h2>
+        <div className="d-flex justify-content-between align-items-center">
+          
+          <select
+            className="form-select"
+            value={serchUser}
+            onChange={serchUserfuction}
+          >
+            <option value="">Select User</option>
+            <option value="todos">all tasks</option>
+            {selectOptions1.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           className="btn btn-primary"
-          onClick={() => setShowCreateModal(true)}
+          onClick={showCreateModalFunction}
         >
           Create Task
         </button>
@@ -279,7 +313,7 @@ const TaskTable = () => {
                     ></textarea>
                   </div>
                   <button type="submit" className="btn btn-primary">
-                  {newTask.title === '' ? 'Save' : 'Modify'}
+                  {booleamShowModal ? 'Save' : 'Modify'}
                   </button>
                 </form>
               </div>
