@@ -1,5 +1,5 @@
 import { useContext, useState  } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { login as loginUser } from '../services/authService';
 
@@ -69,7 +69,10 @@ export const LoginPage = () => {
         </div>
         {error && <div className="alert alert-danger">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
-        <button type="submit" className="btn btn-primary">Login</button>
+        <button type="submit" className="btn btn-primary m-1">Login</button>
+        <Link to={`/login/register`}>
+          Register User       
+        </Link>
       </form>
     </div>
   )
