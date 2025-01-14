@@ -71,3 +71,39 @@ export const createTask = async (task) => {
   return await response.json();
 };
 
+export const modifyteTask = async (task) => {
+  const objet = {
+    title: task.title,
+    description: task.description,
+    //user_id: task.user_id,
+  }
+  const response = await fetch(`${API_URL}/tasks/${task.id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(objet),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create task');
+  }
+
+  return await response.json();
+};
+
+export const deleteTaskService = async (task) => {
+  const response = await fetch(`${API_URL}/tasks/${task}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to create task');
+  }
+
+  return await response.json();
+};
+

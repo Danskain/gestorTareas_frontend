@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { getTasks, updateTaskStatus, createTask, getSelectOptions } from '../services/taskService';
+import { getTasks, updateTaskStatus, createTask, getSelectOptions, modifyteTask, deleteTaskService } from '../services/taskService';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../../auth/context/AuthContext';
@@ -17,6 +17,7 @@ const TaskTable = () => {
   const [selectedOption1, setSelectedOption1] = useState('');
   const [selectedOption2, setSelectedOption2] = useState('');
   const [newTask, setNewTask] = useState({ title: '', description: '', user_id: user.id, });
+  //const [editTask, setEditTask] = useState({ title: '', description: '' });
 
   useEffect(() => {
     fetchTasks();
@@ -69,7 +70,19 @@ const TaskTable = () => {
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
-    console.log("🚀 ~ handleCreateTask ~ newTask:", newTask)
+    
+    if (newTask.title !== '') {
+      try {
+        await modifyteTask(newTask);
+        setShowCreateModal(false);
+        setNewTask({ title: '', description: '', user_id: user.id, });
+        await fetchTasks();
+      } catch (error) {
+        console.error('Error creating task:', error);
+      }
+      return;
+    }
+    
     try {
       await createTask(newTask);
       setShowCreateModal(false);
@@ -79,6 +92,30 @@ const TaskTable = () => {
       console.error('Error creating task:', error);
     }
   };
+
+  const editTaskFunction = (task) => {
+    setNewTask({
+      title: task.title,
+      description: task.description,
+      id: task.id,
+    })
+    setShowCreateModal(true)
+  }
+
+  const closeModalshowCreateModal = () => {
+    setShowCreateModal(false)
+    setNewTask({ title: '', description: '', user_id: user.id, });
+  }
+
+  const deleteTask = async (taskId) => {
+    try {
+      await deleteTaskService(taskId);
+      
+      await fetchTasks();
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  }
 
   if (loading) {
     return <p>Loading...</p>;
@@ -123,10 +160,18 @@ const TaskTable = () => {
                       <i className="fas fa-eye"></i>
                     </button>
                   </Link>
-                  <button className="btn btn-warning btn-sm" title="Edit">
+                  <button
+                    className="btn btn-warning btn-sm"
+                    title="Edit"
+                    onClick={() => editTaskFunction(task.task)}
+                  >
                     <i className="fas fa-edit"></i>
                   </button>
-                  <button className="btn btn-danger btn-sm" title="Delete">
+                  <button
+                    className="btn btn-danger btn-sm"
+                    title="Delete"
+                    onClick={() => deleteTask(task.task.id)}
+                  >
                     <i className="fas fa-trash"></i>
                   </button>
                   <button
@@ -173,21 +218,6 @@ const TaskTable = () => {
                       ))}
                     </select>
                   </div>
-                  {/* <div className="mb-3">
-                    <label className="form-label">Select Option 2</label>
-                    <select
-                      className="form-select"
-                      value={selectedOption2}
-                      onChange={(e) => setSelectedOption2(e.target.value)}
-                    >
-                      <option value="">Select</option>
-                      {selectOptions2.map((option) => (
-                        <option key={option.id} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div> */}
                   <div className="mb-3">
                     <label className="form-label">Nombre</label>
                     <input
@@ -200,7 +230,7 @@ const TaskTable = () => {
                     />
                   </div>
                   <button type="submit" className="btn btn-primary">
-                    Modify
+                    Modify Estatus
                   </button>
                 </form>
               </div>
@@ -218,7 +248,7 @@ const TaskTable = () => {
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={closeModalshowCreateModal}
                 ></button>
               </div>
               <div className="modal-body">
@@ -247,7 +277,7 @@ const TaskTable = () => {
                     ></textarea>
                   </div>
                   <button type="submit" className="btn btn-primary">
-                    Save
+                  {newTask.title === '' ? 'Save' : 'Modify'}
                   </button>
                 </form>
               </div>
