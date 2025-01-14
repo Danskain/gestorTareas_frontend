@@ -142,6 +142,7 @@ const TaskTable = () => {
             <th>ID</th>
             <th>Title</th>
             <th>Description</th>
+            <th>user last status</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -152,6 +153,7 @@ const TaskTable = () => {
               <td>{task.task.id}</td>
               <td>{task.task.title}</td>
               <td>{task.task.description}</td>
+              <td>{task.task.users[0].name}</td>
               <td>{task.last_status}</td>
               <td>
                 <div className="d-flex justify-content-around">
